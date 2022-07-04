@@ -16,33 +16,56 @@
           <div id="unity-progress-bar-full"></div>
         </div>
       </div>
-      <div id="unity-mobile-warning">
-        WebGL builds are not supported on mobile devices.
-      </div>
+      <div id="unity-warning"> </div>
       <div id="unity-footer">
         <div id="unity-fullscreen-button"></div>
         <div id="unity-build-title">Fullscreen</div>
       </div>
     </div>
     <script>
-      var buildUrl = "Build";
-      var loaderUrl = buildUrl + "/129978d678383f70d301118a7945cf44.js";
-      var config = {
-        dataUrl: buildUrl + "/461a759d10fb5ad658346e7bceaa83d2.data",
-        frameworkUrl: buildUrl + "/3e7ea9ca92f1f5fffc16cd059a0ceb4a.js",
-        codeUrl: buildUrl + "/0b9ca7966363d0fedc5b8ec2eeb96a7e.wasm",
-        streamingAssetsUrl: "StreamingAssets",
-        companyName: "CubusGames",
-        productName: "Tria la teva aventura...Científica!",
-        productVersion: "1.0",
-      };
-
       var container = document.querySelector("#unity-container");
       var canvas = document.querySelector("#unity-canvas");
       var loadingBar = document.querySelector("#unity-loading-bar");
       var progressBarFull = document.querySelector("#unity-progress-bar-full");
       var fullscreenButton = document.querySelector("#unity-fullscreen-button");
-      var mobileWarning = document.querySelector("#unity-mobile-warning");
+      var warningBanner = document.querySelector("#unity-warning");
+
+      // Shows a temporary message banner/ribbon for a few seconds, or
+      // a permanent error message on top of the canvas if type=='error'.
+      // If type=='warning', a yellow highlight color is used.
+      // Modify or remove this function to customize the visually presented
+      // way that non-critical warnings and error messages are presented to the
+      // user.
+      function unityShowBanner(msg, type) {
+        function updateBannerVisibility() {
+          warningBanner.style.display = warningBanner.children.length ? 'block' : 'none';
+        }
+        var div = document.createElement('div');
+        div.innerHTML = msg;
+        warningBanner.appendChild(div);
+        if (type == 'error') div.style = 'background: red; padding: 10px;';
+        else {
+          if (type == 'warning') div.style = 'background: yellow; padding: 10px;';
+          setTimeout(function() {
+            warningBanner.removeChild(div);
+            updateBannerVisibility();
+          }, 5000);
+        }
+        updateBannerVisibility();
+      }
+
+      var buildUrl = "Build";
+      var loaderUrl = buildUrl + "/be5c8a837410560f3ca8989808c21df4.js";
+      var config = {
+        dataUrl: buildUrl + "/b860af88a8c8d77d3edc904dfd0391fe.data",
+        frameworkUrl: buildUrl + "/edee1ef02d9357c40d3330d97cfab8a7.js",
+        codeUrl: buildUrl + "/974960a0919a4c119af077ddee1cc42b.wasm",
+        streamingAssetsUrl: "StreamingAssets",
+        companyName: "CubusGames",
+        productName: "Tria la teva aventura...Científica!",
+        productVersion: "1.0",
+        showBanner: unityShowBanner,
+      };
 
       // By default Unity keeps WebGL canvas render target size matched with
       // the DOM size of the canvas element (scaled by window.devicePixelRatio)
@@ -56,10 +79,7 @@
         // Avoid draining fillrate performance on mobile devices,
         // and default/override low DPI mode on mobile browsers.
         config.devicePixelRatio = 1;
-        mobileWarning.style.display = "block";
-        setTimeout(() => {
-          mobileWarning.style.display = "none";
-        }, 5000);
+        unityShowBanner('WebGL builds are not supported on mobile devices.');
       } else {
         canvas.style.width = "960px";
         canvas.style.height = "540px";
